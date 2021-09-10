@@ -1,0 +1,50 @@
+メモ
+
+◇apiテストしたい場合
+1.npm install -g json-server
+2.jsonファイルをつくる
+例：
+{
+  "movies": [
+    {"id": 1, "name": "The Godfather", "director":"Francis Ford Coppola", "rating": 9.1},
+    {"id": 2, "name": "Casablanca", "director": "Michael Curtiz", "rating": 8.8}
+  ]
+}
+3.jsonファイルを作ったところに移動
+4.json-server --watch db.json --port 3030
+
+
+これで、例えば2のjsonだと
+http://localhost:3030/movies
+にアクセスすることでデータ取得できる
+
+
+参考；
+https://www.webprofessional.jp/mock-rest-apis-using-json-server/
+
+
+◇jsonデータファイルを簡単に作る
+1.npm install faker
+2.fake-data-generator.jsを作成
+こんな感じのファイルの中身
+
+var faker = require('faker');
+
+var db = { movies: [] };
+
+for (var i=1; i<=1000; i++) {
+  db.movies.push({
+    id: i,
+    name: faker.random.words(),
+    director: faker.name.firstName() + ' ' + faker.name.lastName(),
+    rating: Math.floor(Math.random()*100+1)/10
+  });
+}
+
+console.log(JSON.stringify(db));
+
+3.node fake-data-generator.js > db.json
+
+
+参考；
+https://www.webprofessional.jp/mock-rest-apis-using-json-server/
