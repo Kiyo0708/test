@@ -1,25 +1,11 @@
-import React from "react";
-import GameStates from "../entity/interface/GameStates";
+import React, { useState } from "react";
+import History, { GameState } from "../entity/History";
 import Board from "./Board";
 
-export default class Game extends React.Component<{}, GameStates> {
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      history: [
-        {
-          squares: Array(9).fill(null),
-          player: "X",
-        },
-      ],
-    };
-  }
+const Game: React.FC<{}> = (props: {}) => {
+  const [history, setHistory] = useState<History>(new History());
 
-  getNowState() {
-    return this.state.history[this.state.history.length - 1];
-  }
-
-  isEnd() {
+  const isEnd = () => {
     const endings = [
       [0, 1, 2],
       [3, 4, 5],
@@ -31,7 +17,7 @@ export default class Game extends React.Component<{}, GameStates> {
       [2, 4, 6],
     ];
     let isEnd = false;
-    const squares = this.getNowState().squares;
+    const squares = history.now.squares;
     endings.forEach((value) => {
       if (
         squares[value[0]] &&
@@ -43,75 +29,53 @@ export default class Game extends React.Component<{}, GameStates> {
       }
     });
     return isEnd;
-  }
+  };
 
-  handleClick(index: number) {
-    const now = this.getNowState();
-    if (this.isEnd() || now.squares[index]) {
+  const handleClick = (index: number) => {
+    const now = history.now;
+    if (isEnd() || now.squares[index]) {
       return;
     }
 
-    this.setState({
-      history: this.state.history.concat(this.getNewGeneration(index)),
-    });
-  }
+    setHistory(history.add(history.getNewState(index)));
+  };
 
-  getNewGeneration(index: number) {
-    // イミュータブル。以下の利点がある
-    // 1.例えば履歴機能などの実装容易性・2.変更の検出容易性・3.2による再レンダリングタイミングの最適化
-    const newSquares = this.getNowState().squares.slice();
-    newSquares[index] = this.getNowState().player;
-
-    const newGeneration = {
-      squares: newSquares,
-      player: this.nextPlayer(),
-    };
-
-    return newGeneration;
-  }
-
-  nextPlayer() {
-    return this.getNowState().player === "X" ? "〇" : "X";
-  }
-
-  getMoveBottons() {
-    const moveButtons = this.state.history.map((step: any, index: number) => {
+  const getMoveBottons = () => {
+    const moveButtons = history.get.map((step: any, index: number) => {
       if (!index) return false;
       const msg = index < 2 ? `初めに戻る` : `#${index}に戻る`;
 
       return (
         <li key={index}>
-          <button onClick={() => this.jumpTo(index)}>{msg}</button>
+          <button onClick={() => jumpTo(index)}>{msg}</button>
         </li>
       );
     });
 
     return moveButtons;
-  }
+  };
 
-  jumpTo(index: number) {
-    this.setState({
-      history: this.state.history.slice(0, index),
-    });
-  }
+  const jumpTo = (index: number) => {
+    setHistory(history.backTo(index));
+  };
 
-  render() {
-    const nowState = this.getNowState();
-    return (
-      <div className="game">
-        <div className="game-board">
-          <Board
-            squares={nowState.squares}
-            player={nowState.player}
-            isEnd={this.isEnd()}
-            onClick={(i: number) => this.handleClick(i)}
-          />
-        </div>
-        <div className="game-info">
-          <div>{/* status */}</div>
-          <ol>{this.getMoveBottons()}</ol>
-        </div>
+  const nowState = history.now;
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board
+          squares={nowState.squares}
+          player={nowState.player}
+          isEnd={isEnd()}
+          onClick={(i: number) => handleClick(i)}
+        />
       </div>
-    );
-  }
-}
+      <div className="game-info">
+        <div>{/* status */}</div>
+        <ol>{getMoveBottons()}</ol>
+      </div>
+    </div>
+  );
+};
+
+export default Game;
