@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import History, { GameState } from "../entity/History";
+import History from "../entity/History";
 import Board from "./Board";
+import MoveButtons from "./MoveButtons";
 
 const Game: React.FC<{}> = (props: {}) => {
   const [history, setHistory] = useState<History>(new History());
@@ -33,26 +34,12 @@ const Game: React.FC<{}> = (props: {}) => {
 
   const handleClick = (index: number) => {
     const now = history.now;
+    // 終わっているか、もしくはすでにクリックされているか
     if (isEnd() || now.squares[index]) {
       return;
     }
 
     setHistory(history.add(history.getNewState(index)));
-  };
-
-  const getMoveBottons = () => {
-    const moveButtons = history.get.map((step: any, index: number) => {
-      if (!index) return false;
-      const msg = index < 2 ? `初めに戻る` : `#${index}に戻る`;
-
-      return (
-        <li key={index}>
-          <button onClick={() => jumpTo(index)}>{msg}</button>
-        </li>
-      );
-    });
-
-    return moveButtons;
   };
 
   const jumpTo = (index: number) => {
@@ -72,7 +59,7 @@ const Game: React.FC<{}> = (props: {}) => {
       </div>
       <div className="game-info">
         <div>{/* status */}</div>
-        <ol>{getMoveBottons()}</ol>
+        <MoveButtons history={history} onClick={jumpTo} />
       </div>
     </div>
   );

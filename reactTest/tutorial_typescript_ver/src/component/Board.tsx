@@ -1,8 +1,13 @@
 import React from "react";
-import BoardProps from "../entity/interface/BoardProps";
 import Square from "./Square";
+type Props = {
+  squares: any[];
+  player: string;
+  isEnd: boolean;
+  onClick: (i: number) => void;
+};
 
-const Board: React.FC<BoardProps> = (props) => {
+const Board: React.FC<Props> = (props) => {
   function renderSquare(i: number) {
     return <Square value={props.squares[i]} onClick={() => props.onClick(i)} />;
   }
